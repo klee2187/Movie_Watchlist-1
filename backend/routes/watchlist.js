@@ -1,14 +1,15 @@
 const routes = require('express').Router();
 const watchlistController = require('../controllers/watchlist');
 const { watchlistValidationRules } = require('../middleware/validation');
-// const { isAuthenticated } = require('../middleware/auth');
+const { isAuthenticated } = require('../middleware/auth');
 
 // GET all watchlist items
-routes.get('/', watchlistController.getUserWatchlist);
+routes.get('/', isAuthenticated, watchlistController.getUserWatchlist);
 
 // GET a single watchlist item by ID
 routes.get(
     '/:id', 
+    isAuthenticated,
     watchlistValidationRules.getById,
     watchlistController.getWatchlistItemById
 );
@@ -16,6 +17,7 @@ routes.get(
 // POST to add movie to watchlist
 routes.post( 
     '/', 
+    isAuthenticated,
     watchlistValidationRules.create,
     watchlistController.addToWatchlist 
 );
@@ -23,6 +25,7 @@ routes.post(
 // PUT to update a watchlist item
 routes.put( 
     '/:id', 
+    isAuthenticated,
     watchlistValidationRules.update,
     watchlistController.updateWatchlistItem 
 );
@@ -30,6 +33,7 @@ routes.put(
 // DELETE to remove a watchlist item
 routes.delete( 
     '/:id', 
+    isAuthenticated,
     watchlistValidationRules.delete,
     watchlistController.deleteWatchlistItem 
 );

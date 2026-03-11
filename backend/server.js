@@ -4,21 +4,80 @@ dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 const express = require('express');
 const dotenv = require('dotenv');
-const cors = require('cors');
 const path = require('path');
+const cors = require('cors');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+const cookieParser = require('cookie-parser');
+const passport = require('./config/passport');
 const mongodb = require('./db/connect');
 const morgan = require('morgan');
+const keys = require('./config/keys');
 
 dotenv.config({ path: './.env' });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const isProduction = keys.isProduction;
+
+app.set('trust proxy', 1);
+
+// Session configuration with MongoDB store for production
+const sessionConfig = {
+  secret: keys.session.SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    secure: isProduction, // HTTPS in production
+    httpOnly: true,
+    sameSite: isProduction ? 'none' : 'lax',
+  },
+};
+ 
+// Use MongoDB to store sessions in production
+if (isProduction) {
+  sessionConfig.store = MongoStore.create({
+    mongoUrl: process.env.MONGO_URL,
+    collectionName: 'sessions',
+    ttl: 24 * 60 * 60, // 24 hours
+  });
+}
+ 
+app.use(cookieParser());
+app.use(session(sessionConfig));
+ 
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
+ 
+// Development logging
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
+ 
+// CORS configuration
+const corsOptions = {
+  origin: isProduction
+    ? [
+        'https://cse341-code-student-1.onrender.com',
+        'https://cse341-code-student-1.onrender.com',
+      ]
+    : ['http://localhost:8080', 'http://localhost:3000'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+};
+ 
+app.use(cors(corsOptions));
 
 // Middleware
 app.use(morgan('dev'));
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use('/auth', require('./routes/auth'));
 
 // frontend files 
 const frontendViewsPath = path.join(__dirname, '../frontend/views');

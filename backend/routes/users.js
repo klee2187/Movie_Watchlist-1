@@ -1,14 +1,15 @@
 const routes = require('express').Router();
 const userController = require('../controllers/users');
 const { userValidationRules } = require('../middleware/validation');
-// const { isAuthenticated } = require('../middleware/auth');
- 
-// GET all users
-routes.get('/', userController.getAllUsers);
+const { isAuthenticated } = require('../middleware/auth');
+
+// GET all users (Protected)
+routes.get('/', isAuthenticated, userController.getAllUsers);
  
 // GET a single user by ID
 routes.get(
   '/:id',
+  isAuthenticated,
   userValidationRules.getById,
   userController.getUserById,
 );
@@ -16,6 +17,7 @@ routes.get(
 // POST to create a new user
 routes.post(
   '/',
+  isAuthenticated,
   userValidationRules.create,
   userController.createUser,
 );
@@ -23,6 +25,7 @@ routes.post(
 // PUT to update a user
 routes.put(
   '/:id',
+  isAuthenticated,
   userValidationRules.update,
   userController.updateUser,
 );
@@ -30,6 +33,7 @@ routes.put(
 // DELETE to delete a user
 routes.delete(
   '/:id',
+  isAuthenticated,
   userValidationRules.delete,
   userController.deleteUser,
 );

@@ -1,15 +1,16 @@
 const routes = require('express').Router();
 const movieController = require('../controllers/movies');
 const { movieValidationRules } = require('../middleware/validation');
-// const { isAuthenticated } = require('..middleware/auth');
+const { isAuthenticated } = require('..middleware/auth');
 
 // GET all movies
-routes.get('/', movieController.getAllMovies );
+routes.get('/', isAuthenticated, movieController.getAllMovies );
 
 
 // GET a single movie by ID
 routes.get(
     '/:id', 
+    isAuthenticated,
     movieValidationRules.getById, 
     movieController.getMovieById 
 );
@@ -17,13 +18,15 @@ routes.get(
 // POST to create a new movie
 routes.post(
     '/',
+    isAuthenticated,
     movieValidationRules.create, 
     movieController.createMovie 
 );
 
 // PUT to update a movie
 routes.put( 
-    '/:id', 
+    '/:id',
+    isAuthenticated, 
     movieValidationRules.update,
     movieController.updateMovie 
 );
@@ -31,6 +34,7 @@ routes.put(
 // DELETE to delete a movie
 routes.delete( 
     '/:id', 
+    isAuthenticated,
     movieValidationRules.delete,
     movieController.deleteMovie, 
 );

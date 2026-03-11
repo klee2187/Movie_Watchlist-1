@@ -54,7 +54,7 @@ const createUser = async (req, res) => {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       email: req.body.email,
-      createdDate: req.body.createdDate,
+      date: req.body.date,
     };
  
     /*  // VALIDATION - Check if email already exists
@@ -81,21 +81,19 @@ const createUser = async (req, res) => {
       !user.firstName ||
       !user.lastName ||
       !user.email ||
-      !user.createdDate
+      !user.date
     ) {
       return res.status(400).json({ message: 'All fields are required' });
     }
  
-    const response = await mongodb
-    .getDb()
-    .collection('users')
-    .insertOne(user);
+    const response = await mongodb.getDb().collection('users').insertOne(user);
  
     // SUCCESS RESPONSE (201 Created)
     res.status(201).json({
       message: 'User created successfully',
       id: response.insertedId,
     });
+ 
     /* ERROR HANDLING (500 Internal Server Error)
     Database insertion failures, MongoDB connection errors,
     Unexpected runtime errors  */
@@ -116,7 +114,7 @@ const updateUser = async (req, res) => {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       email: req.body.email,
-      createdDate: req.body.createdDate,
+      date: req.body.date,
     };
  
     /*  // VALIDATION - Check if email already exists (excluding current user)
@@ -157,6 +155,7 @@ const updateUser = async (req, res) => {
  
     // SUCCESS RESPONSE
     res.status(200).json({ message: 'User updated successfully' });
+ 
     /* ERROR HANDLING (500 Internal Server Error)
     Invalid ObjectId, Database update failures, and
     Unexpected server errors  */
@@ -199,3 +198,4 @@ module.exports = {
   updateUser,
   deleteUser,
 };
+ 

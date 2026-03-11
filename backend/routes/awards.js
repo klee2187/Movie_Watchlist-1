@@ -1,18 +1,18 @@
 const routes = require('express').Router();
 const awardController = require('../controllers/awards');
 const { awardValidationRules } = require('../middleware/validation');
-// Auth is commented out for now
-// const { isAuthenticated } = require('../middleware/auth');
+const { isAuthenticated } = require('../middleware/auth');
 
 // GET all awards
-routes.get('/', awardController.getAllAwards);
+routes.get('/', isAuthenticated, awardController.getAllAwards);
 
 // GET awards by movie ID
-routes.get('/movie/:movieId', awardController.getAwardsByMovieId);
+routes.get('/movie/:movieId', isAuthenticated, awardController.getAwardsByMovieId);
 
 // GET a single award by ID
 routes.get(
   '/:id',
+  isAuthenticated,
   awardValidationRules.getById,
   awardController.getAwardById,
 );
@@ -20,6 +20,7 @@ routes.get(
 // POST to create a new award
 routes.post(
   '/',
+  isAuthenticated,
   awardValidationRules.create,
   awardController.createAward,
 );
@@ -27,6 +28,7 @@ routes.post(
 // PUT to update an award
 routes.put(
   '/:id',
+  isAuthenticated,
   awardValidationRules.update,
   awardController.updateAward,
 );
@@ -34,6 +36,7 @@ routes.put(
 // DELETE to delete an award
 routes.delete(
   '/:id',
+  isAuthenticated,
   awardValidationRules.delete,
   awardController.deleteAward,
 );
