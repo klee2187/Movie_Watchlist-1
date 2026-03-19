@@ -54,7 +54,7 @@ const createUser = async (req, res) => {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       email: req.body.email,
-      date: req.body.date,
+      createdDate: req.body.createdDate,
     };
  
     /*  // VALIDATION - Check if email already exists
@@ -81,7 +81,7 @@ const createUser = async (req, res) => {
       !user.firstName ||
       !user.lastName ||
       !user.email ||
-      !user.date
+      !user.createdDate
     ) {
       return res.status(400).json({ message: 'All fields are required' });
     }
@@ -114,7 +114,7 @@ const updateUser = async (req, res) => {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       email: req.body.email,
-      date: req.body.date,
+      createdDate: req.body.createdDate,
     };
  
     /*  // VALIDATION - Check if email already exists (excluding current user)

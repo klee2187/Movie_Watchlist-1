@@ -139,25 +139,37 @@ app.get('/debug-watchlist-raw', async (req, res) => {
   }
 });
 
-// Start server - connect to DB FIRST, THEN load routes
-mongodb
-  .initDb()
-  .then(() => {
-    console.log('Database connected, now loading routes...');
-    
-    // Load routes ONLY after DB is connected
-    app.use('/', require('./routes/index'));
-    
-    // 404 handler
-    app.use((req, res) => {
-        res.status(404).json({ message: 'Route not found' });
-    });
+// If the DB connection fails, we want to catch that and prevent the server from starting
+let appInitialized = false;
 
-    // Error handler
-    app.use((err, req, res, next) => {
-        console.error(err.stack);
-        res.status(500).json({ message: err.message });
-    });
+async function initApp() {
+  if (appInitialized) return app;
+
+  await mongodb.initDb();
+  console.log('Database initialized, now loading routes...'); 
+
+  // Load routes ONLY after DB is connected
+  app.use('/', require('./routes/index'));
+
+  // 404 handler
+  app.use((req, res) => {
+      res.status(404).json({ message: 'Route not found' });
+  });
+
+  // Error handler
+  app.use((err, req, res, next) => {
+      console.error(err.stack);
+      res.status(500).json({ message: err.message });
+  });
+
+  appInitialized = true;
+  return app;
+}
+
+async function startServer() {
+  try {
+    await initApp();
+    console.log('App initialized successfully, starting server...');
     
     app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
@@ -169,8 +181,14 @@ mongodb
         console.log(`  - http://localhost:${PORT}/awards`);
         console.log(`  - http://localhost:${PORT}/api-docs`);
     });
-  })
-  .catch((err) => {
+  } catch (err) {
     console.error('Failed to connect to database:', err);
     process.exit(1);
-  });
+  }
+}
+
+if (require.main === module) {
+  startServer();
+}
+
+module.exports = { app, initApp, startServer };

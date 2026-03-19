@@ -4,6 +4,7 @@ const { MongoClient } = require('mongodb');
 // loads environment variables from .env
 dotenv.config();
  
+let clientInstance;
 let dbInstance;
  
 // Initializes and connects to the MongoDB database
@@ -26,12 +27,12 @@ const initDb = async () => {
   /* ERROR HANDLING (runtime error):
   Attempts to connect to MongoDB and may fail if the server is unreachable  */
   try {
-    const client = new MongoClient(uri);
-    await client.connect();
+    clientInstance = new MongoClient(uri);
+    await clientInstance.connect();
     console.log('Connected to MongoDB successfully!');
  
     // Get the database from the connection string
-    dbInstance = client.db();
+    dbInstance = clientInstance.db();
  
     // Error Handling: Test the database connection
     await dbInstance.command({ ping: 1 });
@@ -54,11 +55,21 @@ const getDb = () => {
     throw new Error('Database not initialized. Call initDb first.');
   }
   return dbInstance;
-};
+}
+
+async function closeDb() {
+  if (clientInstance) {
+    await clientInstance.close();
+    console.log('MongoDB connection closed');
+    clientInstance = null;
+    dbInstance = null;
+  }
+}
  
 module.exports = {
   initDb,
   getDb,
+  closeDb,
 };
  
  

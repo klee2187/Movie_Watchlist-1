@@ -319,7 +319,7 @@ const updateWatchlistItem = async (req, res) => {
 const deleteWatchlistItem = async (req, res) => {
   try {
     const watchlistId = req.params.id;
-    const userId = req.body.userId || null;
+    const userId = req.userId?.id || req.body?.userId || null;
 
     // Convert to ObjectId for query (watchlist _id is ObjectId)
     const objectId = new ObjectId(watchlistId);
